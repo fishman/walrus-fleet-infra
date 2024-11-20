@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,7 +17,7 @@ spec:
     spec:
       containers:
       - name: registry
-        image: wlregdevitalynorthcr.azurecr.io/wlreg-registry:dev-c560ae5-1726474550 # {"$imagepolicy": "flux-system:registry"}
+        image: wlregdevitalynorthcr.azurecr.io/wlreg-web:master-ee673ca-1732074461 # {"$imagepolicy": "flux-system:registry"}
         imagePullPolicy: Always
         ports:
         - containerPort: 80
