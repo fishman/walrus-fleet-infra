@@ -18,7 +18,7 @@ spec:
   imageRepositoryRef:
     name: registry
   filterTags:
-    pattern: '^dev-[a-fA-F0-9]+-(?P<ts>.*)'
+    pattern: '^master-[a-fA-F0-9]+-(?P<ts>.*)'
     extract: '$ts'
   policy:
     numerical:
