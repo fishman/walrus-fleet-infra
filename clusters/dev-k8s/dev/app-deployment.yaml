@@ -19,6 +19,8 @@ spec:
       - name: registry
         image: wlregdevitalynorthcr.azurecr.io/wlreg-web:master-ee673ca-1732074461 # {"$imagepolicy": "flux-system:registry"}
         imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args: ["diesel migration run && cargo run"]
         ports:
         - containerPort: 80
           name: ui
