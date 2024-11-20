@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: registry
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: registry
+    spec:
+      containers:
+      - name: registry
+        image: wlregdevitalynorthcr.azurecr.io/wlreg-registry:dev-c560ae5-1726474550 # {"$imagepolicy": "flux-system:registry"}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: ui
+        livenessProbe:
+          httpGet:
+            path: /-/health
+            port: 80
+          initialDelaySeconds: 2
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: registry
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: registry
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: registry
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: registry
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    registry.ingress.kubernetes.io/body-size: 1024m
+    registry.ingress.kubernetes.io/client-body-buffer-size: 50m
+    registry.ingress.kubernetes.io/client-max-body-size: 50m
+    registry.ingress.kubernetes.io/proxy-body-size: 1024m
+    registry.ingress.kubernetes.io/proxy-buffer-size: 32k
+    registry.ingress.kubernetes.io/proxy-buffers-number: "8"
+    registry.ingress.kubernetes.io/enable-modsecurity: "true"
+    registry.ingress.kubernetes.io/enable-owasp-core-rules: "true"
+    # registry.ingress.kubernetes.io/modsecurity-transaction-id: "$request_id"
+    # registry.ingress.kubernetes.io/modsecurity-snippet: |
+    #   SecRuleEngine On
+    #   SecAction \"id:900000,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=1\"
+    #   SecAction \"id:900200,phase:1,nolog,pass,t:none,setvar:\'tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE\'\"
+  # SecRuleRemoveById 920350
+  # SecAuditLog /dev/stdout
+spec:
+  ingressClassName: registry
+  tls:
+    - hosts:
+        - "cr.dev.decentrasafe.io"
+      secretName: tls-wlreg-api
+  rules:
+    - host: "dev.privacywall.org"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: registry
+                port:
+                  number: 80

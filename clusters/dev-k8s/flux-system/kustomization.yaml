@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- gotk-components.yaml
+- gotk-sync.yaml
+patches:
+  - patch: |
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: controller
+        annotations:
+          azure.workload.identity/client-id: fa6cbb89-c945-4dba-a927-b353a6c3be2e
+          azure.workload.identity/tenant-id: /subscriptions/2159a528-8005-487e-9b1e-5c39eb37ee8f/resourceGroups/MC_wlreg-dev-italynorth-rg_wlreg-dev-italynorth-aks_italynorth/providers/Microsoft.ManagedIdentity/userAssignedIdentities/wlreg-dev-italynorth-aks-agentpool
+    target:
+      kind: ServiceAccount
+      name: "(source-controller|image-reflector-controller)"
+  - patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: controller
+        labels:
+          azure.workload.identity/use: "true"
+      spec:
+        template:
+          metadata:
+            labels:
+              azure.workload.identity/use: "true"
+    target:
+      kind: Deployment
+      name: "(source-controller|image-reflector-controller)"
+

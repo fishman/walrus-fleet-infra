@@ -1,0 +1,25 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: registry
+  namespace: flux-system
+spec:
+  image: wlregdevitalynorthcr.azurecr.io/wlreg-web
+  interval: 1m0s
+  provider: azure
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: registry
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: registry
+  filterTags:
+    pattern: '^dev-[a-fA-F0-9]+-(?P<ts>.*)'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
