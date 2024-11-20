@@ -77,7 +77,7 @@ spec:
         - "cr.dev.decentrasafe.io"
       secretName: tls-wlreg-api
   rules:
-    - host: "dev.privacywall.org"
+    - host: "cr.dev.decentrasafe.io"
       http:
         paths:
           - path: /
